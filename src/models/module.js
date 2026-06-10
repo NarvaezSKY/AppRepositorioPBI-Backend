@@ -4,6 +4,7 @@ const moduleSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, maxlength: 50 },
     description: { type: String, unique: true, maxlength: 300 },
+    reportCount: { type: Number, default: 0 },
     visibleToRoles: {
       type: [
         {

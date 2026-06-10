@@ -1,6 +1,15 @@
 import { Report } from "../../models/report.js";
 import { Component } from "../../models/module.js";
 
+const syncModuleReportCount = async (moduleId) => {
+  if (!moduleId) {
+    return;
+  }
+
+  const reportCount = await Report.countDocuments({ module: moduleId });
+  await Component.findByIdAndUpdate(moduleId, { reportCount }).exec();
+};
+
 const isModuleVisibleToRole = (module, role) => {
   if (role === "admin") {
     return true;
@@ -63,18 +72,54 @@ const createReport = async ({ name, description, url, module }) => {
     throw error;
   }
 
-  return Report.create({ name, description, url, module });
+  const report = await Report.create({ name, description, url, module });
+  await syncModuleReportCount(module);
+
+  return report;
 };
 
 const updateReport = async (id, { name, description, url, module }) => {
+  const existingReport = await Report.findById(id).exec();
+
+  if (!existingReport) {
+    return null;
+  }
+
+  if (module && String(existingReport.module) !== String(module)) {
+    const moduleExists = await Component.findById(module).exec();
+
+    if (!moduleExists) {
+      const error = new Error("El modulo al que pertenece el reporte no existe");
+      error.status = 404;
+      throw error;
+    }
+  }
+
   const fields = { name, description, url, module };
-  return Report.findByIdAndUpdate(id, fields, { new: true })
+  const updatedReport = await Report.findByIdAndUpdate(id, fields, { new: true })
     .populate("module")
     .exec();
+
+  if (!updatedReport) {
+    return null;
+  }
+
+  await syncModuleReportCount(existingReport.module);
+  await syncModuleReportCount(updatedReport.module?._id || updatedReport.module);
+
+  return updatedReport;
 };
 
 const deleteReport = async (id) => {
-  return Report.findByIdAndDelete(id).exec();
+  const deletedReport = await Report.findByIdAndDelete(id).exec();
+
+  if (!deletedReport) {
+    return null;
+  }
+
+  await syncModuleReportCount(deletedReport.module);
+
+  return deletedReport;
 };
 
 export { getReports, getReportById, createReport, updateReport, deleteReport };
