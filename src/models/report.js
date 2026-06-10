@@ -2,8 +2,9 @@ import mongoose from "mongoose";
 
 const reportSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, maxlength: 50 },
-    description: { type: String, maxlength: 50 },
+    name: { type: String, required: true, maxlength: 100 },
+    description: { type: String, maxlength: 300 },
+    url: { type: String, required: true, maxlength: 500 },
     module: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Module",
