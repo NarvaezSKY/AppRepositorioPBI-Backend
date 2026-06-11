@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import usersRouter from './modules/users/users.routes.js';
 import modulesRouter from './modules/modules/modules.routes.js';
 import reportsRouter from './modules/reports/reports.routes.js';
@@ -13,14 +14,18 @@ import {
 
 const app = express();
 
+const normalizeOrigin = (value) => value?.trim().replace(/\/$/, '');
+
 const allowedOrigins = [
   FRONTEND_DEV_URL,
   FRONTEND_STG_URL,
   FRONTEND_PROD_URL,
-].filter(Boolean);
+]
+  .map(normalizeOrigin)
+  .filter(Boolean);
 
 const strictOriginBlocker = (req, res, next) => {
-  const requestOrigin = req.headers.origin;
+  const requestOrigin = normalizeOrigin(req.headers.origin);
 
   // Si no hay Origin, suele ser una llamada servidor-servidor o herramientas locales.
   if (!requestOrigin) return next();
@@ -29,6 +34,14 @@ const strictOriginBlocker = (req, res, next) => {
     return res.status(403).json({
       message: 'Origin not allowed',
     });
+  }
+
+  return next();
+};
+
+const requireDbConnection = (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: 'Service temporarily unavailable' });
   }
 
   return next();
@@ -44,6 +57,7 @@ app.use(strictOriginBlocker);
 app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(requireDbConnection);
 setupSwagger(app);
 
 // Routes
