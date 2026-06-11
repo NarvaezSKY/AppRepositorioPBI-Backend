@@ -24,6 +24,10 @@ const allowedOrigins = [
   .map(normalizeOrigin)
   .filter(Boolean);
 
+if (allowedOrigins.length === 0) {
+  console.warn('No allowed CORS origins configured. Check FRONTEND_* env vars.');
+}
+
 const strictOriginBlocker = (req, res, next) => {
   const requestOrigin = normalizeOrigin(req.headers.origin);
 
@@ -55,6 +59,7 @@ const corsOptions = {
 
 app.use(strictOriginBlocker);
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(requireDbConnection);

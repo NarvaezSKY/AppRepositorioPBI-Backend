@@ -24,12 +24,17 @@ export const connectDB = async () => {
       throw new Error('MONGODB_URI is not defined');
     }
 
+    if (mongoose.connection.readyState === 1) {
+      return mongoose.connection;
+    }
+
     await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,
     });
     console.log('MongoDB Atlas connection established.');
+    return mongoose.connection;
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    process.exit(1);
+    throw error;
   }
 };
