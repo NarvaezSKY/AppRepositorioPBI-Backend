@@ -55,7 +55,7 @@ const getReportById = async (id, role) => {
   return report;
 };
 
-const createReport = async ({ name, description, url, module }) => {
+const createReport = async ({ name, description, url, module, directnavigate }) => {
   const moduleExists = await Component.findById(module).exec();
 
   if (!moduleExists) {
@@ -72,13 +72,13 @@ const createReport = async ({ name, description, url, module }) => {
     throw error;
   }
 
-  const report = await Report.create({ name, description, url, module });
+  const report = await Report.create({ name, description, url, module, directnavigate });
   await syncModuleReportCount(module);
 
   return report;
 };
 
-const updateReport = async (id, { name, description, url, module }) => {
+const updateReport = async (id, { name, description, url, module, directnavigate }) => {
   const existingReport = await Report.findById(id).exec();
 
   if (!existingReport) {
@@ -95,7 +95,7 @@ const updateReport = async (id, { name, description, url, module }) => {
     }
   }
 
-  const fields = { name, description, url, module };
+  const fields = { name, description, url, module, directnavigate };
   const updatedReport = await Report.findByIdAndUpdate(id, fields, { new: true })
     .populate("module")
     .exec();

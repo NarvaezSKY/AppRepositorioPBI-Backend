@@ -81,6 +81,7 @@ const options = {
             _id: { type: "string", example: "6847f2f8be0f8d7ab98d1111" },
             name: { type: "string", example: "Finanzas" },
             description: { type: "string", example: "Modulo de indicadores financieros" },
+            reportCount: { type: "integer", example: 5, description: "Cantidad de reportes asociados al modulo" },
             visibleToRoles: {
               type: "array",
               items: { type: "string", enum: ["admin", "gfpi"] },
@@ -125,6 +126,7 @@ const options = {
                 { $ref: "#/components/schemas/Module" },
               ],
             },
+            directnavigate: { type: "boolean", example: false, description: "Si es true, el frontend navega directamente al enlace sin renderizar el frame de Power BI" },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },
@@ -137,6 +139,7 @@ const options = {
             description: { type: "string", maxLength: 300 },
             url: { type: "string", maxLength: 500, example: "https://app.powerbi.com/view?r=abc123" },
             module: { type: "string", description: "ObjectId del modulo", example: "6847f2f8be0f8d7ab98d1111" },
+            directnavigate: { type: "boolean", description: "Si es true, el frontend navega directamente al enlace sin renderizar el frame de Power BI" },
           },
         },
         ReportUpdateRequest: {
@@ -146,6 +149,7 @@ const options = {
             description: { type: "string", maxLength: 300 },
             url: { type: "string", maxLength: 500, example: "https://app.powerbi.com/view?r=abc123" },
             module: { type: "string", description: "ObjectId del modulo" },
+            directnavigate: { type: "boolean", description: "Si es true, el frontend navega directamente al enlace sin renderizar el frame de Power BI" },
           },
         },
       },

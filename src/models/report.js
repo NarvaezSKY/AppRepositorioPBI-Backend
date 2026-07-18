@@ -10,6 +10,7 @@ const reportSchema = new mongoose.Schema(
       ref: "Module",
       required: true,
     },
+    directnavigate: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
